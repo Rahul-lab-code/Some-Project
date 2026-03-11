@@ -1,0 +1,15 @@
+package com.example.propertyrentalproject.dto.requests;
+
+import com.example.propertyrentalproject.enums.BookingStatus;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
+public class UpdateBookingStatusRequest {
+
+    @NotNull(message = "Status is required")
+    private BookingStatus status;
+
+    private String reason;
+    private String checkInCode;
+}
