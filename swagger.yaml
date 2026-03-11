@@ -1,0 +1,237 @@
+openapi: 3.0.0
+info:
+  title: Property Rental API
+  description: API documentation for the Property Rental Platform. Includes Auth, Properties, Bookings, Calendar, Reviews, Payments, Disputes, Maintenance, Users and Admin Analytics.
+  version: 1.0.0
+servers:
+  - url: /api
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    RegisterRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - phone
+        - password
+        - role
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [GUEST, HOST]
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          default: Bearer
+        userId:
+          type: integer
+        email:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+          enum: [GUEST, HOST]
+        emailVerified:
+          type: boolean
+        verificationBadge:
+          type: boolean
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+paths:
+  /auth/login:
+    post:
+      summary: Login and get JWT token
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AuthResponse'
+  /auth/register:
+    post:
+      summary: Register new user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AuthResponse'
+  /properties:
+    get:
+      summary: Get all properties
+      security:
+        - bearerAuth: []
+      tags:
+        - Properties
+      responses:
+        '200':
+          description: List of properties
+    post:
+      summary: Create property
+      security:
+        - bearerAuth: []
+      tags:
+        - Properties
+      responses:
+        '201':
+          description: Created
+  /bookings:
+    get:
+      summary: Get all bookings
+      security:
+        - bearerAuth: []
+      tags:
+        - Bookings
+      responses:
+        '200':
+          description: List of bookings
+    post:
+      summary: Create booking
+      security:
+        - bearerAuth: []
+      tags:
+        - Bookings
+      responses:
+        '201':
+          description: Created
+  /calendar:
+    get:
+      summary: Get calendar for property
+      security:
+        - bearerAuth: []
+      tags:
+        - Calendar
+      responses:
+        '200':
+          description: Calendar retrieved
+  /reviews:
+    get:
+      summary: Get reviews
+      security:
+        - bearerAuth: []
+      tags:
+        - Reviews
+      responses:
+        '200':
+          description: Reviews retrieved
+  /payments:
+    get:
+      summary: Get payments
+      security:
+        - bearerAuth: []
+      tags:
+        - Payments
+      responses:
+        '200':
+          description: Payments retrieved
+  /disputes:
+    get:
+      summary: Get disputes
+      security:
+        - bearerAuth: []
+      tags:
+        - Disputes
+      responses:
+        '200':
+          description: Disputes retrieved
+  /maintenance:
+    get:
+      summary: Get maintenance
+      security:
+        - bearerAuth: []
+      tags:
+        - Maintenance
+      responses:
+        '200':
+          description: Maintenance retrieved
+  /users:
+    get:
+      summary: Get users
+      security:
+        - bearerAuth: []
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Users retrieved
+  /admin/analytics:
+    get:
+      summary: Get admin analytics
+      security:
+        - bearerAuth: []
+      tags:
+        - Admin Analytics
+      responses:
+        '200':
+          description: Analytics retrieved
