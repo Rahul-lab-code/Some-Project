@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './components/AuthProvider';
+import Layout from './components/Layout';
 import HomeContainer from './containers/HomeContainer';
 import LoginContainer from './containers/LoginContainer';
 import RegisterContainer from './containers/RegisterContainer';
@@ -27,16 +28,19 @@ function AppRoutes() {
       <Routes>
         <Route path="/login" element={<LoginContainer />} />
         <Route path="/register" element={<RegisterContainer />} />
-        <Route path="/" element={<ProtectedRoute><HomeContainer /></ProtectedRoute>} />
-        <Route path="/properties" element={<ProtectedRoute><PropertiesContainer /></ProtectedRoute>} />
-        <Route path="/bookings" element={<ProtectedRoute><BookingsContainer /></ProtectedRoute>} />
-        <Route path="/calendar" element={<ProtectedRoute><CalendarContainer /></ProtectedRoute>} />
-        <Route path="/reviews" element={<ProtectedRoute><ReviewsContainer /></ProtectedRoute>} />
-        <Route path="/payments" element={<ProtectedRoute><PaymentsContainer /></ProtectedRoute>} />
-        <Route path="/disputes" element={<ProtectedRoute><DisputesContainer /></ProtectedRoute>} />
-        <Route path="/maintenance" element={<ProtectedRoute><MaintenanceContainer /></ProtectedRoute>} />
-        <Route path="/users" element={<ProtectedRoute><UsersContainer /></ProtectedRoute>} />
-        <Route path="/analytics" element={<ProtectedRoute><AnalyticsContainer /></ProtectedRoute>} />
+
+        <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          <Route path="/" element={<HomeContainer />} />
+          <Route path="/properties" element={<PropertiesContainer />} />
+          <Route path="/bookings" element={<BookingsContainer />} />
+          <Route path="/calendar" element={<CalendarContainer />} />
+          <Route path="/reviews" element={<ReviewsContainer />} />
+          <Route path="/payments" element={<PaymentsContainer />} />
+          <Route path="/disputes" element={<DisputesContainer />} />
+          <Route path="/maintenance" element={<MaintenanceContainer />} />
+          <Route path="/users" element={<UsersContainer />} />
+          <Route path="/analytics" element={<AnalyticsContainer />} />
+        </Route>
       </Routes>
     </AuthProvider>
   );

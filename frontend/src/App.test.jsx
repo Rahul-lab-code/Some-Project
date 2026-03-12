@@ -11,6 +11,6 @@ describe('App', () => {
         <AppRoutes />
       </BrowserRouter>
     );
-    expect(screen.getAllByText('Login')[0]).toBeInTheDocument();
+    expect(screen.getByText('Sign in to your account')).toBeInTheDocument();
   });
 });
