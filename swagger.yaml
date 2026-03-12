@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Property Rental API
-  description: API documentation for the Property Rental Platform. Includes Auth, Properties, Bookings, Calendar, Reviews, Payments, Disputes, Maintenance, Users and Admin Analytics.
+  description: Comprehensive API documentation for the Property Rental Platform. Includes Auth, Properties, Bookings, Calendar, Reviews, Payments, Disputes, Maintenance, Users, and Admin Analytics.
   version: 1.0.0
 servers:
   - url: /api
@@ -12,6 +12,19 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          description: Dynamic data payload
+        timestamp:
+          type: string
+          format: date-time
     LoginRequest:
       type: object
       required:
@@ -42,8 +55,10 @@ components:
           format: email
         phone:
           type: string
+          pattern: "^[6-9]\\d{9}$"
         password:
           type: string
+          minLength: 8
         role:
           type: string
           enum: [GUEST, HOST]
@@ -63,23 +78,469 @@ components:
           type: string
         role:
           type: string
-          enum: [GUEST, HOST]
+          enum: [GUEST, HOST, ADMIN]
         emailVerified:
           type: boolean
         verificationBadge:
           type: boolean
-    ApiResponse:
+    CreatePropertyRequest:
+      type: object
+      required:
+        - title
+        - propertyType
+        - addressLine1
+        - city
+        - state
+        - pincode
+        - bedrooms
+        - bathrooms
+        - capacity
+        - basePrice
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        propertyType:
+          type: string
+          enum: [APARTMENT, HOUSE, VILLA, CABIN]
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+        country:
+          type: string
+          default: "India"
+        bedrooms:
+          type: integer
+          minimum: 0
+        bathrooms:
+          type: integer
+          minimum: 0
+        capacity:
+          type: integer
+          minimum: 1
+        houseRules:
+          type: string
+        basePrice:
+          type: number
+          format: double
+        weeklyPrice:
+          type: number
+          format: double
+        monthlyPrice:
+          type: number
+          format: double
+        cleaningFee:
+          type: number
+          format: double
+        securityDeposit:
+          type: number
+          format: double
+        currency:
+          type: string
+          default: "INR"
+        bookingMode:
+          type: string
+          enum: [INSTANT, REQUEST]
+          default: "INSTANT"
+        cancellationPolicy:
+          type: string
+          enum: [FLEXIBLE, MODERATE, STRICT]
+          default: "MODERATE"
+        minStayNights:
+          type: integer
+          default: 1
+        maxStayNights:
+          type: integer
+          default: 365
+        imageUrls:
+          type: array
+          items:
+            type: string
+    PropertyResponse:
       type: object
       properties:
-        success:
-          type: boolean
-        message:
+        id:
+          type: integer
+        hostId:
+          type: integer
+        hostName:
           type: string
-        data:
-          type: object
-        timestamp:
+        hostVerified:
+          type: boolean
+        title:
+          type: string
+        description:
+          type: string
+        propertyType:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, DRAFT]
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+        country:
+          type: string
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        capacity:
+          type: integer
+        houseRules:
+          type: string
+        basePrice:
+          type: number
+        weeklyPrice:
+          type: number
+        monthlyPrice:
+          type: number
+        cleaningFee:
+          type: number
+        securityDeposit:
+          type: number
+        currency:
+          type: string
+        bookingMode:
+          type: string
+        cancellationPolicy:
+          type: string
+        minStayNights:
+          type: integer
+        maxStayNights:
+          type: integer
+        imageUrls:
+          type: array
+          items:
+            type: string
+        createdAt:
           type: string
           format: date-time
+    CreateBookingRequest:
+      type: object
+      required:
+        - propertyId
+        - checkInDate
+        - checkOutDate
+        - guestsCount
+      properties:
+        propertyId:
+          type: integer
+        checkInDate:
+          type: string
+          format: date
+        checkOutDate:
+          type: string
+          format: date
+        guestsCount:
+          type: integer
+          minimum: 1
+    BookingResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        guestId:
+          type: integer
+        guestName:
+          type: string
+        propertyId:
+          type: integer
+        propertyTitle:
+          type: string
+        hostId:
+          type: integer
+        hostName:
+          type: string
+        checkInDate:
+          type: string
+          format: date
+        checkOutDate:
+          type: string
+          format: date
+        guestsCount:
+          type: integer
+        status:
+          type: string
+          enum: [PENDING, CONFIRMED, COMPLETED, CANCELLED]
+        cancellationPolicy:
+          type: string
+        baseAmount:
+          type: number
+        cleaningFee:
+          type: number
+        serviceFee:
+          type: number
+        taxAmount:
+          type: number
+        securityDeposit:
+          type: number
+        totalAmount:
+          type: number
+        checkInCode:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    MaintenanceRequest:
+      type: object
+      required:
+        - propertyId
+        - title
+        - description
+      properties:
+        propertyId:
+          type: integer
+        bookingId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        photoUrls:
+          type: array
+          items:
+            type: string
+    MaintenanceResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        propertyId:
+          type: integer
+        propertyTitle:
+          type: string
+        bookingId:
+          type: integer
+        reportedById:
+          type: integer
+        reportedByName:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [OPEN, IN_PROGRESS, RESOLVED]
+        resolutionNote:
+          type: string
+        photoUrls:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+    DisputeRequest:
+      type: object
+      required:
+        - bookingId
+        - type
+        - description
+      properties:
+        bookingId:
+          type: integer
+        type:
+          type: string
+          enum: [PROPERTY_DAMAGE, PAYMENT_ISSUE, CLEANLINESS, HOST_CANCELLATION, GUEST_BEHAVIOR, OTHER]
+        description:
+          type: string
+        evidenceUrls:
+          type: array
+          items:
+            type: string
+    DisputeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        bookingId:
+          type: integer
+        raisedById:
+          type: integer
+        raisedByName:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+          enum: [OPEN, IN_REVIEW, RESOLVED, CLOSED]
+        description:
+          type: string
+        resolution:
+          type: string
+        evidenceUrls:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+    ReviewRequest:
+      type: object
+      required:
+        - bookingId
+        - revieweeId
+        - rating
+        - comment
+      properties:
+        bookingId:
+          type: integer
+        revieweeId:
+          type: integer
+        rating:
+          type: number
+          minimum: 1.0
+          maximum: 5.0
+        cleanliness:
+          type: number
+          minimum: 1.0
+          maximum: 5.0
+        communication:
+          type: number
+          minimum: 1.0
+          maximum: 5.0
+        accuracy:
+          type: number
+          minimum: 1.0
+          maximum: 5.0
+        value:
+          type: number
+          minimum: 1.0
+          maximum: 5.0
+        ruleCompliance:
+          type: number
+          minimum: 1.0
+          maximum: 5.0
+        comment:
+          type: string
+          minLength: 10
+          maxLength: 1000
+    ReviewResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        bookingId:
+          type: integer
+        reviewerId:
+          type: integer
+        reviewerName:
+          type: string
+        revieweeId:
+          type: integer
+        revieweeName:
+          type: string
+        rating:
+          type: number
+        cleanliness:
+          type: number
+        communication:
+          type: number
+        accuracy:
+          type: number
+        value:
+          type: number
+        ruleCompliance:
+          type: number
+        comment:
+          type: string
+        response:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    PaymentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        bookingId:
+          type: integer
+        amount:
+          type: number
+        paymentMethod:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, COMPLETED, FAILED, REFUNDED]
+        transactionId:
+          type: string
+        transactionType:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        phone:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        fullName:
+          type: string
+        profilePhoto:
+          type: string
+        role:
+          type: string
+        emailVerified:
+          type: boolean
+        phoneVerified:
+          type: boolean
+        verificationBadge:
+          type: boolean
+        trustScore:
+          type: number
+        totalReviews:
+          type: integer
+        kycStatus:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    CalendarResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        propertyId:
+          type: integer
+        blockedDate:
+          type: string
+          format: date
+        reason:
+          type: string
+        bookingId:
+          type: integer
 paths:
   /auth/login:
     post:
@@ -137,15 +598,111 @@ paths:
       responses:
         '200':
           description: List of properties
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PropertyResponse'
     post:
       summary: Create property
       security:
         - bearerAuth: []
       tags:
         - Properties
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePropertyRequest'
       responses:
         '201':
-          description: Created
+          description: Created property
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PropertyResponse'
+  /properties/{id}:
+    get:
+      summary: Get property by ID
+      security:
+        - bearerAuth: []
+      tags:
+        - Properties
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Property details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PropertyResponse'
+    put:
+      summary: Update property
+      security:
+        - bearerAuth: []
+      tags:
+        - Properties
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePropertyRequest'
+      responses:
+        '200':
+          description: Updated property
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PropertyResponse'
+    delete:
+      summary: Delete property
+      security:
+        - bearerAuth: []
+      tags:
+        - Properties
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Deleted successfully
   /bookings:
     get:
       summary: Get all bookings
@@ -156,15 +713,66 @@ paths:
       responses:
         '200':
           description: List of bookings
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/BookingResponse'
     post:
       summary: Create booking
       security:
         - bearerAuth: []
       tags:
         - Bookings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
       responses:
         '201':
-          description: Created
+          description: Created booking
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BookingResponse'
+  /bookings/{id}:
+    get:
+      summary: Get booking by ID
+      security:
+        - bearerAuth: []
+      tags:
+        - Bookings
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BookingResponse'
   /calendar:
     get:
       summary: Get calendar for property
@@ -172,9 +780,26 @@ paths:
         - bearerAuth: []
       tags:
         - Calendar
+      parameters:
+        - in: query
+          name: propertyId
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: Calendar retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CalendarResponse'
   /reviews:
     get:
       summary: Get reviews
@@ -182,9 +807,50 @@ paths:
         - bearerAuth: []
       tags:
         - Reviews
+      parameters:
+        - in: query
+          name: propertyId
+          required: false
+          schema:
+            type: integer
       responses:
         '200':
           description: Reviews retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ReviewResponse'
+    post:
+      summary: Create review
+      security:
+        - bearerAuth: []
+      tags:
+        - Reviews
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewRequest'
+      responses:
+        '201':
+          description: Review created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ReviewResponse'
   /payments:
     get:
       summary: Get payments
@@ -195,6 +861,17 @@ paths:
       responses:
         '200':
           description: Payments retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PaymentResponse'
   /disputes:
     get:
       summary: Get disputes
@@ -205,16 +882,86 @@ paths:
       responses:
         '200':
           description: Disputes retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DisputeResponse'
+    post:
+      summary: File a dispute
+      security:
+        - bearerAuth: []
+      tags:
+        - Disputes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisputeRequest'
+      responses:
+        '201':
+          description: Dispute created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DisputeResponse'
   /maintenance:
     get:
-      summary: Get maintenance
+      summary: Get maintenance requests
       security:
         - bearerAuth: []
       tags:
         - Maintenance
       responses:
         '200':
-          description: Maintenance retrieved
+          description: Maintenance requests retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MaintenanceResponse'
+    post:
+      summary: Request maintenance
+      security:
+        - bearerAuth: []
+      tags:
+        - Maintenance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceRequest'
+      responses:
+        '201':
+          description: Maintenance requested
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MaintenanceResponse'
   /users:
     get:
       summary: Get users
@@ -225,6 +972,42 @@ paths:
       responses:
         '200':
           description: Users retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/UserResponse'
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      security:
+        - bearerAuth: []
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserResponse'
   /admin/analytics:
     get:
       summary: Get admin analytics
@@ -235,3 +1018,12 @@ paths:
       responses:
         '200':
           description: Analytics retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
